@@ -1,8 +1,24 @@
-#include <QVector>
-
+#include <iostream>
 #include "katachat.h"
 
-void Usage(QTextStream &out)
+using namespace std;
+
+/* courtesy ofstackoverflow */
+vector<string> split(const string& str, int delimiter(int) = ::isspace){
+  vector<string> result;
+  auto e=str.end();
+  auto i=str.begin();
+  while(i!=e){
+    i=find_if_not(i,e, delimiter);
+    if(i==e) break;
+    auto j=find_if(i,e, delimiter);
+    result.push_back(string(i,j));
+    i=j;
+  }
+  return result;
+}
+
+void Usage(ostream &out)
 {
     out << "======================== .:: K A T A C H A T ::. ==============================" << endl
         << " valid commands are: " << endl
@@ -18,31 +34,25 @@ void Usage(QTextStream &out)
         << "==============================================================================" << endl;
 }
 
-int main(int argc, char *argv[])
+int main(int, char **)
 {
-    Q_UNUSED(argc);
-    Q_UNUSED(argv);
-
-    QTextStream in(stdin);
-    QTextStream out(stdout);
-
-    KataChat chat(out);
-    Usage(out);
+    KataChat chat(cout);
+    Usage(cout);
 
     chat.ListUsers();
 
     bool bChatRunning = true;
 
-    QString line;
-    QStringList lineItems;
+    string line;
+    vector<std::string> lineItems;
 
     //the parsing loop (Yes! we could have used a more elegant solutions but we're down to the nitty-gritty here)
     while(bChatRunning)
     {
-        line = in.readLine();
-        lineItems = line.split(" "); //we spearate each field by a space
+        getline(cin, line);
+        lineItems = split(line);
 
-        switch(lineItems.length())
+        switch(lineItems.size())
         {
         case 1:
             //one item commands
@@ -63,7 +73,7 @@ int main(int argc, char *argv[])
             else if (0 == lineItems[1].compare(REMOVEUSER))
                 chat.RemoveUser(lineItems[0]);
             else
-                Usage(out);
+                Usage(cout);
             break;
 
         case 3:
@@ -82,17 +92,17 @@ int main(int argc, char *argv[])
 
         default:
             //more than 3 items, will accept only if it's a POST command of a message with spes in it
-            int idx = line.indexOf(POST);
+            int idx = line.find_first_of(POST);
             if(idx > 0)
-                chat.Post(lineItems[0], line.right(line.count() - (idx + sizeof(POST))));
+                chat.Post(lineItems[0], line.substr(idx + sizeof(POST)));
             else
-                Usage(out);
+                Usage(cout);
             break;
         }
-        out << endl;
+        cout << endl;
     }
 
-    out << "Thank your for playing .:: K A T A C H A T ::." << endl;
+    cout << "Thank your for playing .:: K A T A C H A T ::." << endl;
 
     return 0;
 }

@@ -1,36 +1,33 @@
 #include "user.h"
 
-#include <QDebug>
-
-
-User::User(QString &userName, quint32 userId) :
+User::User(std::string &userName, uint userId):
     _name(userName),
     _userId(userId)
 {
 }
 
-bool User::RequestPermissionToFollow(quint32 follower)
+bool User::RequestPermissionToFollow(uint follower)
 {
     //here is where I can choose to accept or deny follow request
 
     //I want to know who is following me
-    _followers << follower;
+    _followers.push_back(follower);
 
     //I deliberately choose to be nice to everyone
     return true;
 }
 
-void User::RemoveFromFollowersList(quint32 follower)
+void User::RemoveFromFollowersList(uint follower)
 {
-    _followers.removeAll(follower);
+    _followers.erase(std::remove(_followers.begin(), _followers.end(), follower), _followers.end());
 }
 
-void User::Follow(quint32 leader)
+void User::Follow(uint leader)
 {
-    _leaders << leader;
+    _leaders.push_back(leader);
 }
 
-void User::Unfollow(quint32 leader)
+void User::Unfollow(uint leader)
 {
-    _leaders.removeAll(leader);
+    _leaders.erase(std::remove(_leaders.begin(), _leaders.end(), leader), _leaders.end());
 }

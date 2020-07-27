@@ -1,9 +1,10 @@
 #ifndef KATACHAT_H
 #define KATACHAT_H
 
-#include <QObject>
-#include <QVector>
-#include <QTextStream>
+#include <iostream>
+#include <vector>
+#include <list>
+#include <string>
 
 #include "user.h"
 
@@ -18,29 +19,30 @@
 
 class KataChat
 {
-    QList<User *> _users;
-    QVector<UserPost> _board;
+    std::list<User *> _users;
+    std::vector<UserPost> _board;
 
-    QTextStream &_outStream;
+    std::ostream &_outStream;
 
-    User    *findUser(QString &UserName);
-    User    *findUser(quint32 userId);
+    User    *findUser(std::string &UserName);
+    User    *findUser(uint userId);
 
-    void    print(QString &poster, UserPost &post);
+    void    print(std::string &poster, UserPost &post);
+
 public:
-    KataChat(QTextStream &out);
+    KataChat(std::ostream &out);
 
     //users management
-    void    AddUser(QString &userName);
-    void    RemoveUser(QString &userName);
+    void    AddUser(std::string &userName);
+    void    RemoveUser(std::string &userName);
     void    ListUsers();
 
     //operations
-    quint32 Post(QString &userName, QString msg);
-    void    Follow(QString &follower, QString &leader);
-    void    Unfollow(QString &follower, QString &leader);
-    void    Read(QString &userName);
-    void    Wall(QString &userName);
+    uint    Post(std::string  &userName, std::string  msg);
+    void    Follow(std::string  &follower, std::string  &leader);
+    void    Unfollow(std::string  &follower, std::string  &leader);
+    void    Read(std::string  &userName);
+    void    Wall(std::string  &userName);
 };
 
 #endif // KATACHAT_H

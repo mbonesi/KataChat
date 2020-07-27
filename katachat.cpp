@@ -1,13 +1,27 @@
+#include <cstdarg>
+#include <cstring>
+
 #include "katachat.h"
 #include "userpost.h"
 
-#include <QDebug>
-#include <QRandomGenerator>
-#include <QVector>
+#define HALLO_WORLD "Hallo world!"
 
-#define HALLO_WORLD "Hallo World!"
+/* courtesy stackoverflow.com */
+std::string format(const std::string format, ...)
+{
+    va_list args;
+    va_start (args, format);
+    size_t len = std::vsnprintf(NULL, 0, format.c_str(), args);
+    va_end (args);
+    std::vector<char> vec(len + 1);
+    va_start (args, format);
+    std::vsnprintf(&vec[0], len + 1, format.c_str(), args);
+    va_end (args);
+    return &vec[0];
+}
 
-User *KataChat::findUser(QString &UserName)
+
+User *KataChat::findUser(std::string  &UserName)
 {
     foreach (User *u, _users)
     {
@@ -19,7 +33,7 @@ User *KataChat::findUser(QString &UserName)
     return nullptr; //not found
 }
 
-User *KataChat::findUser(quint32 userId)
+User *KataChat::findUser(uint userId)
 {
     foreach (User *u, _users)
     {
@@ -31,115 +45,123 @@ User *KataChat::findUser(quint32 userId)
     return nullptr; //not found
 }
 
-void KataChat::print(QString &poster, UserPost &post)
+void KataChat::print(std::string  &poster, UserPost &post)
 {
-    qint64 secs=QDateTime::currentDateTime().toSecsSinceEpoch() -  post.SecondsSinceEpoch();
+    unsigned long long secs=time(0) -  post.SecondsSinceEpoch();
 
-    QString timeOffsetString;
+    std::string timeOffsetString;
 
     if(secs < 60)
     {
-        timeOffsetString = QString(" (%0 seconds ago)").arg(secs);
+        timeOffsetString = format(" (%d seconds ago)", secs);
     }
     else
     {
         int mins = secs/60;
         if(mins < 60)
         {
-            timeOffsetString = QString(" (%0 minutes ago)").arg(mins);
+            timeOffsetString = format(" (%d minutes ago)", mins);
         }
         else
         {
             int hrs = secs/3600;
             if(hrs < 24)
             {
-                timeOffsetString = QString(" (%0 hours ago)").arg(hrs);
+                timeOffsetString = format(" (%d hours ago)", hrs);
             }
             else
             {
                 int days = hrs/24;
                 if(days < 365)
-                    timeOffsetString = QString(" (%0 days ago)").arg(hrs/24);
+                    timeOffsetString = format(" (%d days ago)", hrs/24);
                 else
-                    timeOffsetString = QString(" (%0 yearsago)").arg(days/365);
+                    timeOffsetString = format(" (%d years ago)", days/365);
             }
         }
     }
-    _outStream << poster << " - " << post.GetText() << timeOffsetString << endl;
+    _outStream << poster << " - " << post.GetText() << timeOffsetString << std::endl;
 }
 
-KataChat::KataChat(QTextStream &out) :
+KataChat::KataChat(std::ostream &out) :
     _outStream(out)
-{    
+{
+    srand(time(0)); //seed the random numbers generator
 }
 
-void KataChat::AddUser(QString &userName)
+void KataChat::AddUser(std::string &userName)
 {
-    quint32 userId = QRandomGenerator::system()->generate();
+    uint userId = rand();
     User *pNewUser = new User(userName, userId);
-    _users << pNewUser;
-    _outStream << "User " << userName << " [id=" << userId << "] was added to the system." << endl;
+    _users.push_back(pNewUser);
+    _outStream << "User " << userName << " [id=" << userId << "] was added to the system." << std::endl;
 
     Post(userName, HALLO_WORLD);
 }
 
-void KataChat::RemoveUser(QString &userName)
+void KataChat::RemoveUser(std::string &userName)
 {
     User *pUser = findUser(userName);
     if(pUser)
     {
-        for (int i = 0; i < _users.size(); ++i)
+        std::list<User *>::iterator i = _users.begin();
+        while (i != _users.end())
         {
-            if (_users.at(i)->GetUserId() == pUser->GetUserId())
-                _users.removeAt(i);
+            if((*i)->GetUserId() == pUser->GetUserId())
+            {
+                _users.erase(i++);
+            }
+            else
+            {
+                i++;
+            }
         }
-        _outStream << "User " << userName << " was removed from system." << endl;
+        _outStream << "User " << userName << " was removed from system." << std::endl;
 
         if(_users.size() == 0)
             ListUsers();
     }
     else
     {
-        _outStream << "User " << userName << " does not exist, Sorry." << endl;
+        _outStream << "User " << userName << " does not exist, Sorry." << std::endl;
     }
 }
 
 void KataChat::ListUsers()
 {
-    if(_users.count())
+    if(_users.size())
     {
         _outStream << "The following users are active in the system so far: ";
         foreach (User *u, _users)
         {
             _outStream << u->GetUserName() << " ";
         }
-        _outStream << endl;
+        _outStream << std::endl;
     }
     else
     {
-        _outStream << "there are no users in the system" << endl;
+        _outStream << "there are no users in the system" << std::endl;
     }
 }
 
 
 //KataChat operations
-quint32 KataChat::Post(QString &userName, QString msg)
+uint KataChat::Post(std::string &userName, std::string msg)
 {
-    quint32 postId = QRandomGenerator::system()->generate();
+    uint postId = rand();
     User *pUser = findUser(userName);
     if(pUser)
     {
-        //I need a certain chronologicaly ordering on content dump (hence "push_front")
-        _board.push_front(UserPost(msg, pUser->GetUserId(), postId));
+        //I need a certain chronologicaly ordering on content dump (hence insert at beginning)
+        _board.insert(_board.begin(), UserPost(msg, pUser->GetUserId(), postId));
     }
     else
     {
-        _outStream << "User " << userName << " does not exist, Sorry." << endl;
+        _outStream << "User " << userName << " does not exist, Sorry." << std::endl;
     }
     return postId;
 }
 
-void KataChat::Follow(QString &follower, QString &leader)
+void KataChat::Follow(std::string &follower, std::string &leader)
 {
     User *pFollower = findUser(follower);
     User *pLeader   = findUser(leader);
@@ -148,20 +170,20 @@ void KataChat::Follow(QString &follower, QString &leader)
         if(pLeader->RequestPermissionToFollow(pFollower->GetUserId()))
         {
             pFollower->Follow(pLeader->GetUserId());
-            _outStream << follower << " is now following " << leader << endl;
+            _outStream << follower << " is now following " << leader << std::endl;
         }
         else
         {
-            _outStream<< leader << " denied follow request from " << follower << endl;
+            _outStream<< leader << " denied follow request from " << follower << std::endl;
         }
     }
     else
     {
-        _outStream << "Either one (or both) of " << follower << ", " << leader<< " are not active users in the system,  Sorry." << endl;
+        _outStream << "Either one (or both) of " << follower << ", " << leader<< " are not active users in the system,  Sorry." << std::endl;
     }
 }
 
-void KataChat::Unfollow(QString &follower, QString &leader)
+void KataChat::Unfollow(std::string &follower, std::string &leader)
 {
     User *pFollower = findUser(follower);
     User *pLeader   = findUser(leader);
@@ -169,20 +191,20 @@ void KataChat::Unfollow(QString &follower, QString &leader)
     {
         pFollower->Unfollow(pLeader->GetUserId());
         pLeader->RemoveFromFollowersList(pFollower->GetUserId());
-        _outStream << follower << " is not following " << leader << " anymore" << endl;
+        _outStream << follower << " is not following " << leader << " anymore" << std::endl;
     }
     else
     {
-        _outStream << "Either one (or both) of " << follower << ", " << leader<< " are not active users in the system,  Sorry." << endl;
+        _outStream << "Either one (or both) of " << follower << ", " << leader<< " are not active users in the system,  Sorry." << std::endl;
     }
 }
 
-void KataChat::Read(QString &userName)
+void KataChat::Read(std::string &userName)
 {
     User *pUser = findUser(userName);    
     if(pUser)
     {
-        quint32 userId = pUser->GetUserId();
+        uint userId = pUser->GetUserId();
         foreach (UserPost p, _board) {
             if(p.GetOwner() == userId)
                 print(userName, p);
@@ -190,35 +212,39 @@ void KataChat::Read(QString &userName)
     }
     else
     {
-        _outStream << "User " << userName << " does not exist, Sorry." << endl;
+        _outStream << "User " << userName << " does not exist, Sorry." << std::endl;
     }
 }
 
-void KataChat::Wall(QString &userName)
+void KataChat::Wall(std::string &userName)
 {
     User *pUser = findUser(userName);
     if(pUser)
     {
-        QVector<quint32> matchers;
-        matchers << pUser->GetUserId();
-        matchers << pUser->GetLeaders();
+        std::vector<uint> matchers;
+        matchers.push_back(pUser->GetUserId());
+        matchers.insert(matchers.end(), pUser->GetLeaders().begin(), pUser->GetLeaders().end());
 
         foreach (UserPost p, _board)
         {
-            if(matchers.contains(p.GetOwner()))
+            for (uint i=0; i<matchers.size(); i++)
             {
-                //must get the username here (space for improvement!!)
-                pUser = findUser(p.GetOwner());
-                if(pUser)
+                if(matchers[i] == p.GetOwner())
                 {
-                    //only if user is still acitve in the system
-                    print(pUser->GetUserName(), p);
+                    //must get the username here (space for improvement!!)
+                    pUser = findUser(p.GetOwner());
+                    if(pUser)
+                    {
+                        //only if user is still acitve in the system
+                        print(pUser->GetUserName(), p);
+                        break;
+                    }
                 }
             }
         }
     }
     else
     {
-        _outStream << "User " << userName << " does not exist, Sorry." << endl;
+        _outStream << "User " << userName << " does not exist, Sorry." << std::endl;
     }
 }

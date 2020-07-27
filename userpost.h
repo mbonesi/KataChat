@@ -1,26 +1,26 @@
 #ifndef USERPOSTS_H
 #define USERPOSTS_H
 
+#include <time.h>
+//in order to be fully compiler agnostic you should deal with this include and ifx all the errors (will try on Microsoft tho)
 #include <QObject>
-#include <QTextStream>
-#include <QDateTime>
 
 class UserPost
 {
-    QDateTime _postedTime;
+    time_t _postedTime;
 
-    QString _text;
-    quint32 _user;
-    quint32 _id;
+    std::string _text;
+    uint _user;
+    uint _id;
+
 public:
-
     UserPost() = default;
-    UserPost(QString txt, quint32 userId, quint32 postId);
-    const QString &GetText() {return _text;}
-    quint32 GetOwner() {return _user;}
-    quint32 GetId() {return _id;}
+    UserPost(std::string txt, uint userId, uint postId);
+    const std::string &GetText() {return _text;}
+    uint GetOwner() {return _user;}
+    uint GetId() {return _id;}
 
-    qint64 SecondsSinceEpoch() {return _postedTime.toSecsSinceEpoch();}
+    long long  SecondsSinceEpoch() {return _postedTime;}
 };
 
 
