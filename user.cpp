@@ -1,8 +1,5 @@
 #include "user.h"
 
-#include <QDebug>
-
-
 User::User(QString &userName, quint32 userId) :
     _name(userName),
     _userId(userId)

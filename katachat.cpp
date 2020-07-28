@@ -1,7 +1,6 @@
 #include "katachat.h"
 #include "userpost.h"
 
-#include <QDebug>
 #include <QRandomGenerator>
 #include <QVector>
 
@@ -212,7 +211,11 @@ void KataChat::Wall(QString &userName)
                 if(pUser)
                 {
                     //only if user is still acitve in the system
-                    print(pUser->GetUserName(), p);
+                    print(pUser->GetUserName(), p);                    
+                    /*
+                     * actually here I envision a good place to apply the visitor design pattern
+                     * although it should be coded in wisley to prevent endless loops...
+                     */
                 }
             }
         }

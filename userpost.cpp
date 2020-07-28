@@ -1,5 +1,4 @@
 #include "userpost.h"
-#include <QDebug>
 
 UserPost::UserPost(QString txt, quint32 userId, quint32 postId):
     _text(txt),

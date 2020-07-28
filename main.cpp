@@ -8,12 +8,12 @@ void Usage(QTextStream &out)
         << " valid commands are: " << endl
         << "'users' : shows active users list" << endl
         << "'[user] add' : creates a user with the given name"<< endl
-        << "'[user] remove' : deletes the user wiht the given name" << endl
+        << "'[user] remove' : deletes the user with the given name" << endl
         << "'[user]' : shows the timeline for given user '" << endl
         << "'[user] -> message' : posts a message to the user timeline" << endl
-        << "'[user] wall ': shows the user wall (incl.subrscriptions)" << endl
-        << "'[user1] follows [user2]' : subscribes user1 to posts of user2" << endl
-        << "'[user1] unfollows [user2]' : removes user1 from subscribers to posts of user2" << endl
+        << "'[user] wall ': shows the user wall (own plus subscribed users' content)" << endl
+        << "'[user1] follows [user2]' : subscribes user1 to timeline of user2" << endl
+        << "'[user1] unfollows [user2]' : removes user1 from subscribers to timeline of user2" << endl
         << "'quit': quits KataChat" << endl
         << "==============================================================================" << endl;
 }
@@ -91,6 +91,10 @@ int main(int argc, char *argv[])
         }
         out << endl;
     }
+    /*
+     * Yes, the "Command" design patterm would have showcased more elegance at a cost (desing and coding time)
+     */
+
 
     out << "Thank your for playing .:: K A T A C H A T ::." << endl;
 
