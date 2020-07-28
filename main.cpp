@@ -2,9 +2,13 @@
 
 #include "katachat.h"
 
-void Usage(QTextStream &out)
+void Usage(QTextStream &out, QString line="")
 {
-    out << "======================== .:: K A T A C H A T ::. ==============================" << endl
+    if(!line.isEmpty())
+        out << ">'" << line << "' is not understood. Sorry";
+
+    out << endl
+        << "======================== .:: K A T A C H A T ::. ===========================" << endl
         << " valid commands are: " << endl
         << "'users' : shows active users list" << endl
         << "'[user] add' : creates a user with the given name"<< endl
@@ -13,9 +17,9 @@ void Usage(QTextStream &out)
         << "'[user] -> message' : posts a message to the user timeline" << endl
         << "'[user] wall ': shows the user wall (own plus subscribed users' content)" << endl
         << "'[user1] follows [user2]' : subscribes user1 to timeline of user2" << endl
-        << "'[user1] unfollows [user2]' : removes user1 from subscribers to timeline of user2" << endl
+        << "'[user1] unfollows [user2]' : removes user1 from subscribers list of user2" << endl
         << "'quit': quits KataChat" << endl
-        << "==============================================================================" << endl;
+        << "===========================================================================" << endl;
 }
 
 int main(int argc, char *argv[])
@@ -40,6 +44,9 @@ int main(int argc, char *argv[])
     while(bChatRunning)
     {
         line = in.readLine();
+        if(line.isEmpty())
+            continue;
+
         lineItems = line.split(" "); //we spearate each field by a space
 
         switch(lineItems.length())
@@ -63,7 +70,7 @@ int main(int argc, char *argv[])
             else if (0 == lineItems[1].compare(REMOVEUSER))
                 chat.RemoveUser(lineItems[0]);
             else
-                Usage(out);
+                Usage(out, line);
             break;
 
         case 3:
@@ -84,9 +91,13 @@ int main(int argc, char *argv[])
             //more than 3 items, will accept only if it's a POST command of a message with spes in it
             int idx = line.indexOf(POST);
             if(idx > 0)
+            {
                 chat.Post(lineItems[0], line.right(line.count() - (idx + sizeof(POST))));
+            }
             else
-                Usage(out);
+            {
+                Usage(out, line);
+            }
             break;
         }
         out << endl;
@@ -96,7 +107,7 @@ int main(int argc, char *argv[])
      */
 
 
-    out << "Thank your for playing .:: K A T A C H A T ::." << endl;
+    out << "============= Thank your for playing .:: K A T A C H A T ::. =============" << endl;
 
     return 0;
 }

@@ -64,7 +64,7 @@ void KataChat::print(QString &poster, UserPost &post)
             }
         }
     }
-    _outStream << poster << " - " << post.GetText() << timeOffsetString << endl;
+    _outStream << ">" << poster << " - " << post.GetText() << timeOffsetString << endl;
 }
 
 KataChat::KataChat(QTextStream &out) :
@@ -77,7 +77,7 @@ void KataChat::AddUser(QString &userName)
     quint32 userId = QRandomGenerator::system()->generate();
     User *pNewUser = new User(userName, userId);
     _users << pNewUser;
-    _outStream << "User " << userName << " [id=" << userId << "] was added to the system." << endl;
+    _outStream << ">" << "User " << userName << " [id=" << userId << "] was added to the system." << endl;
 
     Post(userName, HALLO_WORLD);
 }
@@ -92,14 +92,14 @@ void KataChat::RemoveUser(QString &userName)
             if (_users.at(i)->GetUserId() == pUser->GetUserId())
                 _users.removeAt(i);
         }
-        _outStream << "User " << userName << " was removed from system." << endl;
+        _outStream << ">" << " User " << userName << " was removed from system." << endl;
 
         if(_users.size() == 0)
             ListUsers();
     }
     else
     {
-        _outStream << "User " << userName << " does not exist, Sorry." << endl;
+        _outStream << ">" << "User " << userName << " does not exist, Sorry." << endl;
     }
 }
 
@@ -107,16 +107,16 @@ void KataChat::ListUsers()
 {
     if(_users.count())
     {
-        _outStream << "The following users are active in the system so far: ";
+        _outStream << ">" << "The following users are active in the system so far: ";
         foreach (User *u, _users)
         {
-            _outStream << u->GetUserName() << " ";
+            _outStream << ">" << u->GetUserName() << " ";
         }
         _outStream << endl;
     }
     else
     {
-        _outStream << "there are no users in the system" << endl;
+        _outStream << ">" << "there are no users in the system" << endl;
     }
 }
 
@@ -133,7 +133,7 @@ quint32 KataChat::Post(QString &userName, QString msg)
     }
     else
     {
-        _outStream << "User " << userName << " does not exist, Sorry." << endl;
+        _outStream << ">" << "User " << userName << " does not exist, Sorry." << endl;
     }
     return postId;
 }
@@ -147,7 +147,7 @@ void KataChat::Follow(QString &follower, QString &leader)
         if(pLeader->RequestPermissionToFollow(pFollower->GetUserId()))
         {
             pFollower->Follow(pLeader->GetUserId());
-            _outStream << follower << " is now following " << leader << endl;
+            _outStream << ">" << follower << " is now following " << leader << endl;
         }
         else
         {
@@ -156,7 +156,7 @@ void KataChat::Follow(QString &follower, QString &leader)
     }
     else
     {
-        _outStream << "Either one (or both) of " << follower << ", " << leader<< " are not active users in the system,  Sorry." << endl;
+        _outStream << ">" << "Either one (or both) users '" << follower << "','" << leader<< "' could not be found.  Sorry." << endl;
     }
 }
 
@@ -168,11 +168,11 @@ void KataChat::Unfollow(QString &follower, QString &leader)
     {
         pFollower->Unfollow(pLeader->GetUserId());
         pLeader->RemoveFromFollowersList(pFollower->GetUserId());
-        _outStream << follower << " is not following " << leader << " anymore" << endl;
+        _outStream << ">" << follower << " is not following " << leader << " anymore" << endl;
     }
     else
     {
-        _outStream << "Either one (or both) of " << follower << ", " << leader<< " are not active users in the system,  Sorry." << endl;
+        _outStream << ">" << "Either one (or both) of " << follower << ", " << leader<< " are not active users in the system,  Sorry." << endl;
     }
 }
 
@@ -189,7 +189,7 @@ void KataChat::Read(QString &userName)
     }
     else
     {
-        _outStream << "User " << userName << " does not exist, Sorry." << endl;
+        _outStream << ">" << "User " << userName << " does not exist, Sorry." << endl;
     }
 }
 
@@ -222,6 +222,6 @@ void KataChat::Wall(QString &userName)
     }
     else
     {
-        _outStream << "User " << userName << " does not exist, Sorry." << endl;
+        _outStream << ">" << "User " << userName << " does not exist, Sorry." << endl;
     }
 }
