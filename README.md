@@ -12,6 +12,17 @@ my proposal for "Social Networking Kata" to run under Linux Ubuntu OS
 - accept default settings for build environment
 - Inspect code, Build, Run (CTRL+F5: it will launch the debug build; you can always switch to release build)
 
+# Usage instructions
+Upon program start it will list accepted commands.
+I coded in a few more scnearios: adding user to the system, removing a user from the system and user *unfollow*.
+
+To verify the assignment, run the app and add first add the three users manually:
+- **Alice add**
+- **Bob add**
+- **Charlie add**
+
+then you are ready to experiment with the implementation.
+
 Enjoy (hopefully).
 
-Mo
+Maurizio (Mo)
